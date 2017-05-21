@@ -322,7 +322,6 @@ class DataMatrix implements BarcodeIO
       this.text = ""; 
       this.actualWidth = 0; 
       this.actualHeight = 0;
-      //actualWidth = actualHeight = 0;
    }
    
    public DataMatrix(BarcodeImage image)
@@ -332,7 +331,7 @@ class DataMatrix implements BarcodeIO
       value.  Call scan() and avoid duplication of code
       here.
        */
-      actualWidth = actualHeight = 0;
+      scan(image);
    }
    
    public DataMatrix(String text)
@@ -342,7 +341,7 @@ class DataMatrix implements BarcodeIO
       value. Call readText() and avoid duplication of
       code here.
        */
-      actualWidth = actualHeight = 0;
+      readText(text);
    }
    
    //Accessors for actualWidth and actualHeight but no mutators! (why?)
