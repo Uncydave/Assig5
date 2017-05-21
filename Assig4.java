@@ -435,15 +435,14 @@ class DataMatrix implements BarcodeIO
       a mutator for text.  Like the constructor;  in
       fact it is called by the constructor.
        */
-      if(this.equals(text))
-	   {
-		  return true;
-	   }  
-	   this.text.equals("");
-	   {
-	      return false;
-   
-	   }
+       if(this.equals(text))
+       {
+          return true;
+       }  
+       this.text.equals("");
+       {
+          return false;
+       }
    }
 
    public boolean generateImageFromText()
