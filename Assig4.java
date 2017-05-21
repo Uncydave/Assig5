@@ -11,7 +11,7 @@ public class Assig4 {
    
    public static void calebDriver()
    {
-      BarcodeImage bc = new BarcodeImage();
+
       String[] sImageIn =
       {
          "                                               ",
@@ -35,6 +35,66 @@ public class Assig4 {
       BarcodeImage bc2 = new BarcodeImage(sImageIn);
       DataMatrix dm = new DataMatrix();
       dm.scan(bc2);
+      dm.translateImageToText();
+      dm.displayImageToConsole();
+      dm.displayTextToConsole();
+      
+      String[] sImageIn_2 =
+            {
+                  "                                          ",
+                  "                                          ",
+                  "* * * * * * * * * * * * * * * * * * *     ",
+                  "*                                    *    ",
+                  "**** *** **   ***** ****   *********      ",
+                  "* ************ ************ **********    ",
+                  "** *      *    *  * * *         * *       ",
+                  "***   *  *           * **    *      **    ",
+                  "* ** * *  *   * * * **  *   ***   ***     ",
+                  "* *           **    *****  *   **   **    ",
+                  "****  *  * *  * **  ** *   ** *  * *      ",
+                  "**************************************    ",
+                  "                                          ",
+                  "                                          ",
+                  "                                          ",
+                  "                                          "
+      
+            };
+      BarcodeImage bc3 = new BarcodeImage(sImageIn_2);
+      DataMatrix dm2 = new DataMatrix();
+      dm2.scan(bc3);
+      dm2.translateImageToText();
+      dm2.displayImageToConsole();
+      dm2.displayTextToConsole();
+     
+      String[] sImageIn_3 =
+         {
+               "                                          ",
+               "                                          ",
+               "                                          ",
+               "                                          ",
+               "                                          ",
+               "                                          ",
+               "                                          ",
+               "                                          ",
+               "                                          ",
+               "                                          ",
+               "                                          ",
+               "                                          ",
+               "                                          ",
+               "                                          ",
+               "                                          ",
+               "                                          "
+   
+         };
+   BarcodeImage bc4 = new BarcodeImage(sImageIn_3);
+   DataMatrix dm3 = new DataMatrix();
+   dm3.scan(bc4);
+   dm3.translateImageToText();
+   dm3.displayImageToConsole();
+   dm3.displayTextToConsole();
+   
+   int test = 34444;
+   System.out.println((char)test);
    }
 
 }
@@ -332,23 +392,32 @@ class DataMatrix implements BarcodeIO
       }
       catch (CloneNotSupportedException e)
       {
+         
       }
       
       //set actualWidth and actualHeight
       actualHeight = computeSignalHeight();
       actualWidth = computeSignalWidth();
       
-      
-      System.out.println("Start:");
-      displayRawImage();
+      //Indicate that the signal is improperly formatted.
+      if(actualHeight <= 0 || actualWidth <= 0)
+      {
+         return false;
+      }
       
       //clean the image
-      cleanImage();
+      try
+      {
+         cleanImage();
+      }
+      catch (Exception e)
+      {
+         //Indicate that we were unable to clean the image.
+         return false;
+      }
       
-      System.out.println("Finish:");
+      return true;
       
-      displayRawImage();
-      return false;
    }
 
    public boolean readText( String text )
@@ -417,10 +486,30 @@ class DataMatrix implements BarcodeIO
       and translateImageToText() that are not broken
       down to smaller ones.
        */
-      return false;
+      
+      String message = "";
+      
+      for(int i = 1; i < actualWidth-1; i++)
+      {
+         try
+         {
+            //compute and collect the characters from each column
+            message += readCharFromCol(i);
+         }
+         catch (Exception e)
+         {
+            //Something is wrong with the barcode image.
+            return false;
+         }
+      }
+      
+      //set the text value.
+      this.text = message;
+      
+      return true;
    }
    
-   private char readCharFromCol(int col)
+   private char readCharFromCol(int col) throws Exception
    {
       /*
       FROM 'OTHER CONSIDERATIONS':
@@ -435,7 +524,43 @@ class DataMatrix implements BarcodeIO
       and translateImageToText() that are not broken
       down to smaller ones.
        */
-      return '#';
+      
+      //find the offset for pulling signal from the BarcodeImage
+      int offsetY = BarcodeImage.MAX_HEIGHT-actualHeight;
+      
+      //Multipliers for each bit in the column.
+      int[] extractedColumn = new int[actualHeight];
+      
+      //assumes clean image with signal on bottom-left corner.
+      for(int y = 0; y <  actualHeight; y++)
+      {
+         if(image.getPixel(offsetY + y, col))
+         {
+            extractedColumn[y] = 1;
+         }
+         else
+         {
+            extractedColumn[y] = 0;
+         }
+      }
+      
+      //collector for the ASCII character value
+      int characterValue = 0;
+      
+      //compute, ignoring top and bottom rows
+      for(int i = 1; i < actualHeight-1; i++)
+      {
+         //read the extractedColumn from the bottom up, multiplying 
+         //by 2^n_row. Complicated because n_row is going down in value while i is going up.
+         characterValue += ((int)Math.pow(2, i-1)) * extractedColumn[actualHeight-1-i];
+      }
+      
+
+      if(characterValue > 255 || characterValue < 0)
+      {
+         throw new Exception("Invalid character value in column!");
+      }
+      return (char) characterValue;
    }
    
    private boolean writeCharToCol(int col, int code)
@@ -462,6 +587,7 @@ class DataMatrix implements BarcodeIO
       /*
       prints out text string to console
        */
+      System.out.println(this.text);
    }
 
    public void displayImageToConsole()
@@ -481,7 +607,7 @@ class DataMatrix implements BarcodeIO
       
       int[] origin = findSpineOrigin();
       
-      System.out.println("disp image: (" + origin[0] + "," + origin[1] + ")");
+
       //could not find the signal origin.
       if(origin[0] < 0 || origin[1] < 0)
       {
@@ -490,9 +616,12 @@ class DataMatrix implements BarcodeIO
       }
       else
       {
-         //Initialize the values
-         actualHeight = computeSignalHeight();
-         actualWidth = computeSignalWidth();
+         //Initialize the values if not already done
+         if(actualHeight <= 0 || actualWidth <= 0)
+         {
+            actualHeight = computeSignalHeight();
+            actualWidth = computeSignalWidth();
+         }
          
          System.out.println();
          for(int x = 0; x < actualWidth+2; x++)
@@ -508,11 +637,11 @@ class DataMatrix implements BarcodeIO
                
                if(image.getPixel(origin[1]-actualHeight+y+1, x+origin[0]))
                {
-                  System.out.print("*");
+                  System.out.print(BLACK_CHAR);
                }
                else
                {
-                  System.out.print(" ");
+                  System.out.print(WHITE_CHAR);
                }
             }
             System.out.println("|");
@@ -540,9 +669,9 @@ class DataMatrix implements BarcodeIO
       originX = originY = -1;
       
       //looking for image 'spine' so we start at bottom left
-      for(int y = image.MAX_HEIGHT-1; y >= 0 && !hasFoundSomething; y--)
+      for(int y = BarcodeImage.MAX_HEIGHT-1; y >= 0 && !hasFoundSomething; y--)
       {
-         for(int x = 0; x < image.MAX_WIDTH && !hasFoundSomething; x++)
+         for(int x = 0; x < BarcodeImage.MAX_WIDTH && !hasFoundSomething; x++)
          {
             //We keep searching rows until we find something.
             if(image.getPixel(y,x)){
@@ -560,14 +689,17 @@ class DataMatrix implements BarcodeIO
    
    private int computeSignalWidth()
    {
-     
+      /*
+       * Find the signal within the BarcodeImage
+       * and computes its width.
+       */
       int signalWidth = 0;
 
       //finds the bottom-left point, or origin, of the signal.
       int[] originCoordinates = findSpineOrigin();
       
       //Count how many columns the spine is present within.
-      for(int x = originCoordinates[0]; x < image.MAX_WIDTH; x++){
+      for(int x = originCoordinates[0]; x < BarcodeImage.MAX_WIDTH; x++){
          if(image.getPixel(originCoordinates[1], x))
          {
             signalWidth++;
@@ -579,6 +711,10 @@ class DataMatrix implements BarcodeIO
    
    private int computeSignalHeight()
    {
+      /*
+       * Find the signal within the BarcodeImage
+       * and computes its height.
+       */
       int signalHeight = 0;
       
       //finds the bottom-left point, or origin, of the signal.
@@ -595,33 +731,41 @@ class DataMatrix implements BarcodeIO
       return signalHeight;
    }
    
-   private void cleanImage()
+   private void cleanImage() throws Exception
    {
       /*
       This private method will make no assumption about
       the placement of the "signal" within a passed-in
       BarcodeImage.  In other words, the in-coming
       BarcodeImage may not be lower-left justified. 
-      
-      Caleb: FULL EXPLANATION WITH EXAMPLES IN SPEC UNDER
-      PHASE 3. TOO COMPLICATED TO PUT HERE.
-      
-      private void moveImageToLowerLeft(), 
-      private void shiftImageDown(int offset),
-      private void shiftImageLeft(int offset).
        */
-
-      moveImageToLowerLeft();
+      try
+      {
+         moveImageToLowerLeft();
+      }
+      catch (Exception e)
+      {
+         throw new Exception("Could not clean image!\n" + e.getMessage());
+      }
    }
    
-   private void moveImageToLowerLeft()
+   private void moveImageToLowerLeft() throws Exception
    {
       /*
        * This function draws the BarcodeImage's
        * signal in the lower-left corner of 
        * the total image space.
        */
-      drawImageAtOrigin(0,image.MAX_HEIGHT-1);
+      try
+      {
+         drawImageAtOrigin(0,BarcodeImage.MAX_HEIGHT-1);
+      }
+      catch (Exception e)
+      {
+         throw new Exception("Could not draw image in lower-left corner!\n" + 
+               e.getMessage());
+      }
+
    }
    
    private boolean[][] getSignalOnly(int[] origin)
@@ -656,6 +800,7 @@ class DataMatrix implements BarcodeIO
                catch (IndexOutOfBoundsException e)
                {
                   //this is invoked if the values of origin[] push us out of bounds.
+                  return null;
                }
             }
          }
@@ -685,7 +830,7 @@ class DataMatrix implements BarcodeIO
       
    }
    
-   private void drawImageAtOrigin(int targetX, int targetY)
+   private void drawImageAtOrigin(int targetX, int targetY) throws Exception
    {
       /*
        * This function will draw the BarcodeImage's signal
@@ -701,12 +846,10 @@ class DataMatrix implements BarcodeIO
       if(signalMap != null)
       {
          //we make sure the origin is valid
-         if(targetX+actualWidth > image.MAX_WIDTH || 
+         if(targetX+actualWidth > BarcodeImage.MAX_WIDTH || 
                targetY-actualHeight < 0)
          {
-            //TODO: Actually raise an exception here.
-            System.err.println("Invalid Origin Values!");
-            return;
+            throw new Exception("Invalid origin values!");
          }
          
          clearImage();
@@ -721,6 +864,10 @@ class DataMatrix implements BarcodeIO
             }
          }
       }
+      else
+      {
+         throw new Exception("There is no signal in this BarcodeImage!");
+      }
 
    }
    public void displayRawImage()
@@ -732,30 +879,32 @@ class DataMatrix implements BarcodeIO
       tool.
        */
       
-      //System.out.println(image_data);
-      for(int x = 0; x < image.MAX_WIDTH+2; x++)
+      //add top line
+      for(int x = 0; x < BarcodeImage.MAX_WIDTH+2; x++)
       {
          System.out.print("-");
       }
       System.out.println();
-      for(int y = 0; y < image.MAX_HEIGHT; y++)
+      //translate BarcodeImage into text.
+      for(int y = 0; y < BarcodeImage.MAX_HEIGHT; y++)
       {
          System.out.print("|");
-         for(int x = 0; x < image.MAX_WIDTH; x++)
+         for(int x = 0; x < BarcodeImage.MAX_WIDTH; x++)
          {
             if(image.getPixel(y, x))
             {
-               System.out.print("*");
+               System.out.print(BLACK_CHAR);
             }
             else
             {
-               System.out.print(" ");
+               System.out.print(WHITE_CHAR);
             }
             
          }
          System.out.println("|");
       }
-      for(int x = 0; x < image.MAX_WIDTH+2; x++)
+      //Add bottom line
+      for(int x = 0; x < BarcodeImage.MAX_WIDTH+2; x++)
       {
          System.out.print("-");
       }
@@ -770,9 +919,9 @@ class DataMatrix implements BarcodeIO
       utility that sets the image to white =  false.
        */
       //clear the barcode image.
-      for(int y = 0; y < image.MAX_HEIGHT; y++)
+      for(int y = 0; y < BarcodeImage.MAX_HEIGHT; y++)
       {
-         for(int x = 0; x < image.MAX_WIDTH; x++)
+         for(int x = 0; x < BarcodeImage.MAX_WIDTH; x++)
          {
             image.setPixel(y, x, false);
          }
@@ -780,3 +929,4 @@ class DataMatrix implements BarcodeIO
    }
 }
    
+
