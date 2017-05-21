@@ -435,7 +435,15 @@ class DataMatrix implements BarcodeIO
       a mutator for text.  Like the constructor;  in
       fact it is called by the constructor.
        */
-      return false;
+      if(this.equals(text))
+	   {
+		  return true;
+	   }  
+	   this.text.equals("");
+	   {
+	      return false;
+   
+	   }
    }
 
    public boolean generateImageFromText()
@@ -453,7 +461,7 @@ class DataMatrix implements BarcodeIO
       FROM 'OTHER CONSIDERATIONS':
       The methods generateImageFromText() and
       translateImageToText(), are the tricky parts, and
-      it will help if you have some methods like the
+      it will                                                        help if you have some methods like the
       following to break up the work:  private char
       readCharFromCol(int col) and private boolean
       WriteCharToCol(int col, int code).  While you
