@@ -1,5 +1,20 @@
+/* ---------------------------------------------------------------------------------------------------------------- 
+Nautilus Group
+Caleb Allen
+Daisy Mayorga
+David Harrison
+Dustin Whittington
+Michael Cline
+CST 338
+M4: Optical Bar Code Readers Java Program
+23 May 2017
 
-public class Assig4 {
+PURPOSE:
+
+----------------------------------------------------------------------------------------------------------------- */
+
+public class Assig4
+{
 
    public static void main(String[] args) 
    {
@@ -96,7 +111,6 @@ public class Assig4 {
    int test = 34444;
    System.out.println((char)test);
    }
-
 }
 
 interface BarcodeIO
@@ -123,7 +137,6 @@ class BarcodeImage implements Cloneable
    and true for elements that are black.
    */
    private boolean[][] image_data;
-   
    
    /*
    Constructors.  Two minimum, but you could have others:
@@ -222,7 +235,6 @@ class BarcodeImage implements Cloneable
    // Returns a BarcodeImage object identical to current BarcodeImage object
    public BarcodeImage clone() throws CloneNotSupportedException
    {
-
       BarcodeImage clone = new BarcodeImage();
       for (int row = 0; row < MAX_HEIGHT; row++)
       {
@@ -269,8 +281,6 @@ class BarcodeImage implements Cloneable
          System.out.print("-");
       }
    }
-   
-   
 }
 
 class DataMatrix implements BarcodeIO
@@ -292,7 +302,6 @@ class DataMatrix implements BarcodeIO
     */
    private String text;
    
-   
    /*
    two ints that are typically less than
    BarcodeImage.MAX_WIDTH and BarcodeImage.MAX_HEIGHT
@@ -302,8 +311,7 @@ class DataMatrix implements BarcodeIO
    as the image changes through mutators.  It can be
    computed from the "spine" of the image.
     */
-   private int actualWidth, actualHeight;
-   
+   private int actualWidth, actualHeight; 
    
    /*
    Constructors.  Three minimum, but you could have more:
@@ -319,6 +327,7 @@ class DataMatrix implements BarcodeIO
       default image, in practice.  The text can be set
       to blank, "", or something like "undefined".
        */
+      this.image = new BarcodeImage();
       this.text = ""; 
       this.actualWidth = 0; 
       this.actualHeight = 0;
@@ -331,7 +340,9 @@ class DataMatrix implements BarcodeIO
       value.  Call scan() and avoid duplication of code
       here.
        */
-      scan(image);
+      if (!scan(image))
+         this.image = new BarcodeImage();
+      this.text = "";
    }
    
    public DataMatrix(String text)
@@ -341,7 +352,9 @@ class DataMatrix implements BarcodeIO
       value. Call readText() and avoid duplication of
       code here.
        */
-      readText(text);
+      this.image = new BarcodeImage();
+      if (!readText(text))
+         this.text = "";
    }
    
    //Accessors for actualWidth and actualHeight but no mutators! (why?)
@@ -390,36 +403,21 @@ class DataMatrix implements BarcodeIO
        */
       try
       {
-         image = bc.clone();
+         this.image = bc.clone();
       }
       catch (CloneNotSupportedException e)
       {
-         
+         return false;
       }
+      
+      //cleans and sets image to bottom left corner
+      cleanImage();
       
       //set actualWidth and actualHeight
       actualHeight = computeSignalHeight();
       actualWidth = computeSignalWidth();
       
-      //Indicate that the signal is improperly formatted.
-      if(actualHeight <= 0 || actualWidth <= 0)
-      {
-         return false;
-      }
-      
-      //clean the image
-      try
-      {
-         cleanImage();
-      }
-      catch (Exception e)
-      {
-         //Indicate that we were unable to clean the image.
-         return false;
-      }
-      
-      return true;
-      
+      return true; 
    }
 
    public boolean readText( String text )
@@ -518,7 +516,7 @@ class DataMatrix implements BarcodeIO
       return true;
    }
    
-   private char readCharFromCol(int col) throws Exception
+   private char readCharFromCol(int col)
    {
       /*
       FROM 'OTHER CONSIDERATIONS':
@@ -535,7 +533,7 @@ class DataMatrix implements BarcodeIO
        */
       
       //find the offset for pulling signal from the BarcodeImage
-      int offsetY = BarcodeImage.MAX_HEIGHT-actualHeight;
+      int offsetY = BarcodeImage.MAX_HEIGHT - actualHeight;
       
       //Multipliers for each bit in the column.
       int[] extractedColumn = new int[actualHeight];
@@ -557,38 +555,40 @@ class DataMatrix implements BarcodeIO
       int characterValue = 0;
       
       //compute, ignoring top and bottom rows
-      for(int i = 1; i < actualHeight-1; i++)
+      for(int i = 1; i < actualHeight - 1; i++)
       {
          //read the extractedColumn from the bottom up, multiplying 
          //by 2^n_row. Complicated because n_row is going down in value while i is going up.
-         characterValue += ((int)Math.pow(2, i-1)) * extractedColumn[actualHeight-1-i];
+         characterValue += ((int)Math.pow(2, i - 1)) * extractedColumn[actualHeight - 1 - i];
       }
-      
 
       if(characterValue > 255 || characterValue < 0)
       {
-         throw new Exception("Invalid character value in column!");
+         System.out.println("Invalid character value in column!");
       }
       return (char) characterValue;
    }
    
    private boolean writeCharToCol(int col, int code)
    {
-      /*
-      FROM 'OTHER CONSIDERATIONS':
-      The methods generateImageFromText() and
-      translateImageToText(), are the tricky parts, and
-      it will help if you have some methods like the
-      following to break up the work:  private char
-      readCharFromCol(int col) and private boolean
-      WriteCharToCol(int col, int code).  While you
-      don't have to use these exact methods, you must
-      not turn in huge methods generateImageFromText()
-      and translateImageToText() that are not broken
-      down to smaller ones.
-       */
-      
-      return false;
+      String binaryString = Integer.toBinaryString(code);
+      Boolean[] binaryBoolean = new Boolean[8];
+      int location = 0;
+     
+      if (code < 0 || code > 255)
+         return false;
+     
+      for (int i = 0; i < 8; i++)
+         if (binaryString.charAt(7 - i) == '1')
+            binaryBoolean[i] = true;
+         else
+            binaryBoolean[i] = false;
+     
+      for (int i = BarcodeImage.MAX_HEIGHT - 2; i < binaryString.length();
+            i++, location++)
+         image.setPixel(i, col, binaryBoolean[location]);
+     
+      return false;   
    }
 
    public void displayTextToConsole()
@@ -615,7 +615,6 @@ class DataMatrix implements BarcodeIO
        */
       
       int[] origin = findSpineOrigin();
-      
 
       //could not find the signal origin.
       if(origin[0] < 0 || origin[1] < 0)
@@ -643,7 +642,6 @@ class DataMatrix implements BarcodeIO
             System.out.print("|");
             for(int x = 0; x < actualWidth; x++)
             {
-               
                if(image.getPixel(origin[1]-actualHeight+y+1, x+origin[0]))
                {
                   System.out.print(BLACK_CHAR);
@@ -661,8 +659,6 @@ class DataMatrix implements BarcodeIO
          }
          System.out.println();
       }
-      
-
    }
    
    private int[] findSpineOrigin()
@@ -683,14 +679,14 @@ class DataMatrix implements BarcodeIO
          for(int x = 0; x < BarcodeImage.MAX_WIDTH && !hasFoundSomething; x++)
          {
             //We keep searching rows until we find something.
-            if(image.getPixel(y,x)){
+            if(image.getPixel(y,x))
+            {
                hasFoundSomething = true;
                originY = y;
                originX = x;
             }
          }
       }
-      
       //returning a coordinate pair. 
       int[] coords = {originX,originY};
       return coords;
@@ -703,18 +699,13 @@ class DataMatrix implements BarcodeIO
        * and computes its width.
        */
       int signalWidth = 0;
-
-      //finds the bottom-left point, or origin, of the signal.
-      int[] originCoordinates = findSpineOrigin();
-      
-      //Count how many columns the spine is present within.
-      for(int x = originCoordinates[0]; x < BarcodeImage.MAX_WIDTH; x++){
-         if(image.getPixel(originCoordinates[1], x))
+      for (int col = 0; col < BarcodeImage.MAX_WIDTH; col++)
+      {
+         if (image.getPixel(BarcodeImage.MAX_HEIGHT - 1, col) == true)
          {
             signalWidth++;
          }
       }
-      
       return signalWidth;
    }
    
@@ -725,22 +716,17 @@ class DataMatrix implements BarcodeIO
        * and computes its height.
        */
       int signalHeight = 0;
-      
-      //finds the bottom-left point, or origin, of the signal.
-      int[] originCoordinates = findSpineOrigin();
-      
-      //Count how many rows the spine is present within.
-      for(int y = originCoordinates[1]; y >= 0; y--){
-         if(image.getPixel(y, originCoordinates[0]))
+      for (int row = 0; row < BarcodeImage.MAX_HEIGHT; row++)
+      {
+         if (image.getPixel(row, 0) == true)
          {
             signalHeight++;
          }
       }
-      
       return signalHeight;
    }
    
-   private void cleanImage() throws Exception
+   private void cleanImage()
    {
       /*
       This private method will make no assumption about
@@ -754,11 +740,11 @@ class DataMatrix implements BarcodeIO
       }
       catch (Exception e)
       {
-         throw new Exception("Could not clean image!\n" + e.getMessage());
+         System.out.println("Could not clean image!\n");
       }
    }
    
-   private void moveImageToLowerLeft() throws Exception
+   private void moveImageToLowerLeft()
    {
       /*
        * This function draws the BarcodeImage's
@@ -771,10 +757,8 @@ class DataMatrix implements BarcodeIO
       }
       catch (Exception e)
       {
-         throw new Exception("Could not draw image in lower-left corner!\n" + 
-               e.getMessage());
+         System.out.println("Could not draw image in lower-left corner!\n");
       }
-
    }
    
    private boolean[][] getSignalOnly(int[] origin)
@@ -799,8 +783,7 @@ class DataMatrix implements BarcodeIO
          for(int y = 0; y < actualHeight; y++)
          {
             for(int x = 0; x < actualWidth; x++)
-            {
-               
+            {  
                try
                {
                   //fill the signalMap
@@ -835,8 +818,6 @@ class DataMatrix implements BarcodeIO
             return null;
          }
       }
-
-      
    }
    
    private void drawImageAtOrigin(int targetX, int targetY) throws Exception
@@ -908,7 +889,6 @@ class DataMatrix implements BarcodeIO
             {
                System.out.print(WHITE_CHAR);
             }
-            
          }
          System.out.println("|");
       }
@@ -918,7 +898,6 @@ class DataMatrix implements BarcodeIO
          System.out.print("-");
       }
       System.out.println();
-   
    }
    
    private void clearImage()
@@ -937,5 +916,3 @@ class DataMatrix implements BarcodeIO
       }
    }
 }
-   
-
