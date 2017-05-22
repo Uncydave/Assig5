@@ -18,15 +18,6 @@ public class Assig4
 
    public static void main(String[] args) 
    {
-      // TODO Auto-generated method stub
-      System.out.println("Assig4.main() runs!");
-      calebDriver();
-
-   }
-   
-   public static void calebDriver()
-   {
-
       String[] sImageIn =
       {
          "                                               ",
@@ -46,72 +37,50 @@ public class Assig4
          "                                               ",
          "                                               "
 
-      }; 
-      BarcodeImage bc2 = new BarcodeImage(sImageIn);
-      DataMatrix dm = new DataMatrix();
-      dm.scan(bc2);
-      dm.translateImageToText();
-      dm.displayImageToConsole();
-      dm.displayTextToConsole();
-      
+      };      
+            
       String[] sImageIn_2 =
-            {
-                  "                                          ",
-                  "                                          ",
-                  "* * * * * * * * * * * * * * * * * * *     ",
-                  "*                                    *    ",
-                  "**** *** **   ***** ****   *********      ",
-                  "* ************ ************ **********    ",
-                  "** *      *    *  * * *         * *       ",
-                  "***   *  *           * **    *      **    ",
-                  "* ** * *  *   * * * **  *   ***   ***     ",
-                  "* *           **    *****  *   **   **    ",
-                  "****  *  * *  * **  ** *   ** *  * *      ",
-                  "**************************************    ",
-                  "                                          ",
-                  "                                          ",
-                  "                                          ",
-                  "                                          "
-      
-            };
-      BarcodeImage bc3 = new BarcodeImage(sImageIn_2);
-      DataMatrix dm2 = new DataMatrix();
-      dm2.scan(bc3);
-      dm2.translateImageToText();
-      dm2.displayImageToConsole();
-      dm2.displayTextToConsole();
+      {
+            "                                          ",
+            "                                          ",
+            "* * * * * * * * * * * * * * * * * * *     ",
+            "*                                    *    ",
+            "**** *** **   ***** ****   *********      ",
+            "* ************ ************ **********    ",
+            "** *      *    *  * * *         * *       ",
+            "***   *  *           * **    *      **    ",
+            "* ** * *  *   * * * **  *   ***   ***     ",
+            "* *           **    *****  *   **   **    ",
+            "****  *  * *  * **  ** *   ** *  * *      ",
+            "**************************************    ",
+            "                                          ",
+            "                                          ",
+            "                                          ",
+            "                                          "
+
+      };
      
-      String[] sImageIn_3 =
-         {
-               "                                          ",
-               "                                          ",
-               "                                          ",
-               "                                          ",
-               "                                          ",
-               "                                          ",
-               "                                          ",
-               "                                          ",
-               "                                          ",
-               "                                          ",
-               "                                          ",
-               "                                          ",
-               "                                          ",
-               "                                          ",
-               "                                          ",
-               "                                          "
-   
-         };
-   BarcodeImage bc4 = new BarcodeImage(sImageIn_3);
-   DataMatrix dm3 = new DataMatrix();
-   dm3.scan(bc4);
-   dm3.translateImageToText();
-   dm3.displayImageToConsole();
-   dm3.displayTextToConsole();
-   
-   int test = 34444;
-   System.out.println((char)test);
+      BarcodeImage bc = new BarcodeImage(sImageIn);
+      DataMatrix dm = new DataMatrix(bc);
+     
+      // First secret message
+      dm.translateImageToText();
+      dm.displayTextToConsole();
+      dm.displayImageToConsole();
+      
+      // second secret message
+      bc = new BarcodeImage(sImageIn_2);
+      dm.scan(bc);
+      dm.translateImageToText();
+      dm.displayTextToConsole();
+      dm.displayImageToConsole();
+      
+      // create your own message
+      dm.readText("What a great resume builder this is!");
+      dm.generateImageFromText();
+      dm.displayTextToConsole();
+      dm.displayImageToConsole();
    }
-}
 
 interface BarcodeIO
 {
@@ -123,7 +92,7 @@ interface BarcodeIO
    public void displayImageToConsole();
 }
 
-class BarcodeImage implements Cloneable
+static class BarcodeImage implements Cloneable
 {
    //The exact internal dimensions of 2D data.
    public static final int MAX_HEIGHT = 30;
@@ -283,7 +252,7 @@ class BarcodeImage implements Cloneable
    }
 }
 
-class DataMatrix implements BarcodeIO
+static class DataMatrix implements BarcodeIO
 {
    public static final char BLACK_CHAR = '*';
    public static final char WHITE_CHAR = ' ';
@@ -458,7 +427,7 @@ class DataMatrix implements BarcodeIO
       FROM 'OTHER CONSIDERATIONS':
       The methods generateImageFromText() and
       translateImageToText(), are the tricky parts, and
-      it will                                                        help if you have some methods like the
+      it will help if you have some methods like the
       following to break up the work:  private char
       readCharFromCol(int col) and private boolean
       WriteCharToCol(int col, int code).  While you
@@ -467,7 +436,32 @@ class DataMatrix implements BarcodeIO
       and translateImageToText() that are not broken
       down to smaller ones.
        */
-      return false;
+      if (text == null)
+      {
+         return false;
+      }
+     
+      image = new BarcodeImage();
+     
+      for (int i = 0; i < text.length(); i++)
+      {
+         image.setPixel(BarcodeImage.MAX_HEIGHT - 1, i, true);
+      }
+     
+      writeCharToCol(0, 255);
+     
+      for (int i = 1; i < text.length() + 1; i++)
+      {
+         if (!writeCharToCol(i, (int) text.charAt(i)))
+         {
+            return false;
+         }
+      }
+     
+      actualWidth = computeSignalWidth();
+      actualHeight = computeSignalHeight();
+     
+      return true;
    }
 
    public boolean translateImageToText()
@@ -915,4 +909,5 @@ class DataMatrix implements BarcodeIO
          }
       }
    }
+}
 }
