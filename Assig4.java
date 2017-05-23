@@ -72,22 +72,6 @@ public class Assig4
             "                                          "
 
       };
-      
-      //An exact copy of output of generateImageFromText
-      String[] test =
-         {
-               "* * * * * * * * * * * * * * * * * * * ",
-               "*                                     ",
-               "***** * ***** ****** ******* **** ** *",
-               "* *********************************** ",
-               "**  *    *  * * **    *    * *  *  * *",
-               "* *               *    **     **  *   ",
-               "**  *   * * *  * ***  * ***  *       *",
-               "**      **    * *    *     *    *  *  ",
-               "** *  * * **   *****  **  *    ** ****",
-               "**************************************"
-         };
-      
      
       BarcodeImage bc = new BarcodeImage(sImageIn);
       DataMatrix dm = new DataMatrix(bc);
@@ -98,13 +82,6 @@ public class Assig4
       
       // second secret message
       bc = new BarcodeImage(sImageIn_2);
-      dm.scan(bc);
-      dm.translateImageToText();
-      dm.displayTextToConsole();
-      dm.displayImageToConsole();
-      
-      // a reverse translation of below code to test output of generateImageFromText
-      bc = new BarcodeImage(test);
       dm.scan(bc);
       dm.translateImageToText();
       dm.displayTextToConsole();
@@ -151,7 +128,7 @@ class BarcodeImage implements Cloneable
    */
    private boolean[][] image_data;
    
-   // Default constructor
+   // Default constructor sets all image_data values to false
    public BarcodeImage()
    {
       image_data = new boolean[MAX_HEIGHT][MAX_WIDTH];
@@ -634,27 +611,30 @@ class DataMatrix implements BarcodeIO
    
    private boolean writeCharToCol(int col, int code)
    {
-      //Adds leading 0's to converted Int to binaryString
+      //Creates a binary string representation of the passed in code
+      //with leading 0's.
       String binaryString = String.format("%8s", Integer.toBinaryString(code)).replace(' ', '0');
+      //Stores the 8 code bits as true/false
       Boolean[] binaryBoolean = new Boolean[8];
-     
+      //Checks for a valid char value
       if (code < 0 || code > 255)
          return false;
-
-      for (int i = 0; i < 8; i++)
-         if (binaryString.charAt(7 - i) == '1')
-            binaryBoolean[i] = true;
+      //Creates a boolean representation of binaryString
+      for (int n = 0; n < 8; n++)
+         if (binaryString.charAt(7 - n) == '1')
+            binaryBoolean[n] = true;
          else
-            binaryBoolean[i] = false;
-      int i = 0;
-      int location = BarcodeImage.MAX_HEIGHT - 2;
-      while (i < binaryString.length())
+            binaryBoolean[n] = false;
+      //Set corresponding column in image to true/false to match values in binaryBoolean[]
+      int n = 0;
+      int row = BarcodeImage.MAX_HEIGHT - 2;
+      while (n < binaryString.length())
       {
-         image.setPixel(location, col, binaryBoolean[i]);
-         i++;
-         location--;
+         image.setPixel(row, col, binaryBoolean[n]);
+         n++;
+         row--;
       }
-      return false;   
+      return true;   
    }
 
    public void displayTextToConsole()
@@ -676,8 +656,6 @@ class DataMatrix implements BarcodeIO
        should display only the relevant portion of the
       image, clipping the excess blank/white from the
       top and right.  Also, show a border
-      
-      Caleb: SEE 'OTHER CONSIDERATIONS' FOR EXAMPLES
        */
       
       int[] origin = findSpineOrigin();
