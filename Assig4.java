@@ -351,7 +351,11 @@ class DataMatrix implements BarcodeIO
       here.
        */
       if (!scan(image))
+      {
          this.image = new BarcodeImage();
+         this.actualHeight = 0;
+         this.actualWidth = 0;
+      }
       this.text = "";
    }
    
@@ -364,8 +368,12 @@ class DataMatrix implements BarcodeIO
       code here.
        */
       this.image = new BarcodeImage();
+      this.actualHeight = 0;
+      this.actualWidth = 0;
       if (!readText(text))
+      {
          this.text = "";
+      }
    }
    
    //Accessor for actualWidth
@@ -446,6 +454,11 @@ class DataMatrix implements BarcodeIO
       fact it is called by the constructor.
        */
       if (text == null)
+      {
+         return false;
+      }
+      //if we don't have room to display the text.
+      else if(text.length() > BarcodeImage.MAX_WIDTH-2)
       {
          return false;
       }
@@ -541,18 +554,16 @@ class DataMatrix implements BarcodeIO
       
       String message = "";
       
+      //improperly formatted barcode
+      if(actualWidth <= 1 || actualHeight <= 1)
+      {
+         return false;
+      }
+      
       for(int i = 1; i < actualWidth-1; i++)
       {
-         try
-         {
-            //compute and collect the characters from each column
-            message += readCharFromCol(i);
-         }
-         catch (Exception e)
-         {
-            //Something is wrong with the barcode image.
-            return false;
-         }
+         //compute and collect the characters from each column
+         message += readCharFromCol(i);
       }
       
       //set the text value.
@@ -576,15 +587,26 @@ class DataMatrix implements BarcodeIO
       and translateImageToText() that are not broken
       down to smaller ones.
        */
+      int adjustedHeight = actualHeight;
+      
+      if(adjustedHeight > 10)
+      {
+         /*
+          * As per https://ilearn.csumb.edu/mod/forum/discuss.php?d=104708
+          * 
+          * "Yes, 10 is the max rows.  If there are more, discard them."
+          */
+         adjustedHeight = 10;
+      }
       
       //find the offset for pulling signal from the BarcodeImage
-      int offsetY = BarcodeImage.MAX_HEIGHT - actualHeight;
+      int offsetY = BarcodeImage.MAX_HEIGHT - adjustedHeight;
       
       //Multipliers for each bit in the column.
-      int[] extractedColumn = new int[actualHeight];
+      int[] extractedColumn = new int[adjustedHeight];
       
       //assumes clean image with signal on bottom-left corner.
-      for(int y = 0; y <  actualHeight; y++)
+      for(int y = 0; y <  adjustedHeight; y++)
       {
          if(image.getPixel(offsetY + y, col))
          {
@@ -600,17 +622,13 @@ class DataMatrix implements BarcodeIO
       int characterValue = 0;
       
       //compute, ignoring top and bottom rows
-      for(int i = 1; i < actualHeight - 1; i++)
+      for(int i = 1; i < adjustedHeight - 1; i++)
       {
          //read the extractedColumn from the bottom up, multiplying 
          //by 2^n_row. Complicated because n_row is going down in value while i is going up.
-         characterValue += ((int)Math.pow(2, i - 1)) * extractedColumn[actualHeight - 1 - i];
+         characterValue += ((int)Math.pow(2, i - 1)) * extractedColumn[adjustedHeight - 1 - i];
       }
 
-      if(characterValue > 255 || characterValue < 0)
-      {
-         System.out.println("Invalid character value in column!");
-      }
       return (char) characterValue;
    }
    
@@ -743,8 +761,7 @@ class DataMatrix implements BarcodeIO
    private int computeSignalWidth()
    {
       /*
-       * Find the signal within the BarcodeImage
-       * and computes its width.
+       * Assuming a cleaned BarcodeImage, compute signal width.
        */
       int signalWidth = 0;
       for (int col = 0; col < BarcodeImage.MAX_WIDTH; col++)
@@ -760,8 +777,7 @@ class DataMatrix implements BarcodeIO
    private int computeSignalHeight()
    {
       /*
-       * Find the signal within the BarcodeImage
-       * and computes its height.
+       * Assuming a cleaned BarcodeImage, compute signal height.
        */
       int signalHeight = 0;
       for (int row = 0; row < BarcodeImage.MAX_HEIGHT; row++)
@@ -776,6 +792,11 @@ class DataMatrix implements BarcodeIO
    
    private void cleanImage()
    {
+      /*
+       * Cleans the BarcodeImage for later use. Sparce
+       * because, as per spec, "Error correction would be done at this 
+       * point in a real class design."
+       */
       moveImageToLowerLeft();
    }
    
@@ -788,6 +809,7 @@ class DataMatrix implements BarcodeIO
       shiftImageDown(BarcodeImage.MAX_HEIGHT - spineOrigin[1] - 1); 
    }
    
+   //Moves the BarcodeImage's signal down by offset rows.
    private void shiftImageDown(int offset)
    {
       for (int row = BarcodeImage.MAX_HEIGHT - (offset + 1); row >= 0; row--)
@@ -798,6 +820,7 @@ class DataMatrix implements BarcodeIO
       }
    }
    
+ //Moves the BarcodeImage's signal left by offset columns.
    private void shiftImageLeft(int offset)
    {
       for (int row = 0; row < BarcodeImage.MAX_HEIGHT; row++)
