@@ -59,10 +59,25 @@ public class Assig4
             "                                          "
 
       };
+      
+      //An exact copy of output of generateImageFromText
+      String[] test =
+         {
+               "* * * * * * * * * * * * * * * * * * * ",
+               "*                                     ",
+               "***** * ***** ****** ******* **** ** *",
+               "* *********************************** ",
+               "**  *    *  * * **    *    * *  *  * *",
+               "* *               *    **     **  *   ",
+               "**  *   * * *  * ***  * ***  *       *",
+               "**      **    * *    *     *    *  *  ",
+               "** *  * * **   *****  **  *    ** ****",
+               "**************************************"
+         };
+      
      
       BarcodeImage bc = new BarcodeImage(sImageIn);
       DataMatrix dm = new DataMatrix(bc);
-     
       // First secret message
       dm.translateImageToText();
       dm.displayTextToConsole();
@@ -70,6 +85,13 @@ public class Assig4
       
       // second secret message
       bc = new BarcodeImage(sImageIn_2);
+      dm.scan(bc);
+      dm.translateImageToText();
+      dm.displayTextToConsole();
+      dm.displayImageToConsole();
+      
+      // a reverse translation of below code to test output of generateImageFromText
+      bc = new BarcodeImage(test);
       dm.scan(bc);
       dm.translateImageToText();
       dm.displayTextToConsole();
@@ -402,6 +424,7 @@ static class DataMatrix implements BarcodeIO
       a mutator for text.  Like the constructor;  in
       fact it is called by the constructor.
        */
+      /*
        if(this.equals(text))
        {
           return true;
@@ -410,6 +433,17 @@ static class DataMatrix implements BarcodeIO
        {
           return false;
        }
+       */
+      if (text == null)
+      {
+         return false;
+      }
+      else
+      {
+         this.text = text;
+         return true;
+      }
+      
    }
 
    public boolean generateImageFromText()
@@ -442,20 +476,29 @@ static class DataMatrix implements BarcodeIO
       }
      
       image = new BarcodeImage();
-     
-      for (int i = 0; i < text.length(); i++)
+      //Create bottom border
+      for (int i = 0; i < text.length() + 2; i++)
       {
          image.setPixel(BarcodeImage.MAX_HEIGHT - 1, i, true);
+
       }
-     
-      writeCharToCol(0, 255);
-     
-      for (int i = 1; i < text.length() + 1; i++)
+      //create top border
+      for (int i = 0; i < text.length() + 2; i++)
       {
-         if (!writeCharToCol(i, (int) text.charAt(i)))
+         if (i % 2 == 0)
          {
-            return false;
+            image.setPixel(BarcodeImage.MAX_HEIGHT - 10, i, true);
          }
+
+      }
+      //create left border
+      writeCharToCol(0, 255);
+      //create right border
+      writeCharToCol(text.length() + 1, 85);
+      
+      for (int i = 0; i < text.length(); i++)
+      {
+         writeCharToCol(i + 1, (int) text.charAt(i));
       }
      
       actualWidth = computeSignalWidth();
@@ -565,23 +608,27 @@ static class DataMatrix implements BarcodeIO
    
    private boolean writeCharToCol(int col, int code)
    {
-      String binaryString = Integer.toBinaryString(code);
+      //Adds leading 0's to converted Int to binaryString
+      String binaryString = String.format("%8s", Integer.toBinaryString(code)).replace(' ', '0');
       Boolean[] binaryBoolean = new Boolean[8];
-      int location = 0;
      
       if (code < 0 || code > 255)
          return false;
-     
+
       for (int i = 0; i < 8; i++)
          if (binaryString.charAt(7 - i) == '1')
             binaryBoolean[i] = true;
          else
             binaryBoolean[i] = false;
-     
-      for (int i = BarcodeImage.MAX_HEIGHT - 2; i < binaryString.length();
-            i++, location++)
-         image.setPixel(i, col, binaryBoolean[location]);
-     
+      int i = 0;
+      int location = BarcodeImage.MAX_HEIGHT - 2;
+      while (i < binaryString.length())
+      {
+         image.setPixel(location, col, binaryBoolean[i]);
+         i++;
+         location--;
+      }
+
       return false;   
    }
 
@@ -719,141 +766,44 @@ static class DataMatrix implements BarcodeIO
       }
       return signalHeight;
    }
+
    
    private void cleanImage()
    {
-      /*
-      This private method will make no assumption about
-      the placement of the "signal" within a passed-in
-      BarcodeImage.  In other words, the in-coming
-      BarcodeImage may not be lower-left justified. 
-       */
-      try
-      {
-         moveImageToLowerLeft();
-      }
-      catch (Exception e)
-      {
-         System.out.println("Could not clean image!\n");
-      }
+      moveImageToLowerLeft();
    }
    
+   //Finds bottom left corner, then calls methods to shift image left and down
+   //to eliminate white space
    private void moveImageToLowerLeft()
    {
-      /*
-       * This function draws the BarcodeImage's
-       * signal in the lower-left corner of 
-       * the total image space.
-       */
-      try
-      {
-         drawImageAtOrigin(0,BarcodeImage.MAX_HEIGHT-1);
-      }
-      catch (Exception e)
-      {
-         System.out.println("Could not draw image in lower-left corner!\n");
-      }
+      int[] spineOrigin = findSpineOrigin();
+      shiftImageLeft(spineOrigin[0]);
+      shiftImageDown(BarcodeImage.MAX_HEIGHT - spineOrigin[1] - 1); 
    }
    
-   private boolean[][] getSignalOnly(int[] origin)
+   private void shiftImageDown(int offset)
    {
-      /*
-       * This function is a helper function that makes a
-       * signal map. It finds and copies only the portion
-       * of the BarcodeImage that has signal and makes a
-       * 2d array of booleans (signalMap) to represent it.
-       * 
-       * This function is used by drawImageAtOrigin()
-       * which move the Signal portion to a desired origin
-       * 
-       * returns null if there is no signal.
-       */
-      boolean[][] signalMap;
-      
-      //if actualWidth and actualHeight have been computed and stored.
-      if(actualWidth > 0 && actualHeight > 0)
+      for (int row = BarcodeImage.MAX_HEIGHT - (offset + 1); row >= 0; row--)
       {
-         signalMap = new boolean[actualHeight][actualWidth];
-         for(int y = 0; y < actualHeight; y++)
-         {
-            for(int x = 0; x < actualWidth; x++)
-            {  
-               try
-               {
-                  //fill the signalMap
-                  signalMap[y][x] = image.getPixel(origin[1]+1+y-actualHeight, x+origin[0]);   
-               }
-               catch (IndexOutOfBoundsException e)
-               {
-                  //this is invoked if the values of origin[] push us out of bounds.
-                  return null;
-               }
-            }
-         }
-         //return the extracted signal map.
-         return signalMap;
-      }
-      //This section is invoked if actualHeight or actualWidth are 0
-      else 
-      {
-         int sigWidth = computeSignalWidth();
-         int sigHeight = computeSignalHeight();
-         
-         //Here we recall the function with the correct values setup.
-         if(sigWidth > 0 && sigHeight > 0)
-         {
-            actualHeight = sigHeight;
-            actualWidth = sigWidth;
-            return getSignalOnly(origin);
-         }
-         //Default is return null.
-         else
-         {
-            return null;
+         for (int col = 0; col < BarcodeImage.MAX_WIDTH; col++) {
+            image.setPixel(row + offset, col, image.getPixel(row, col));
          }
       }
    }
    
-   private void drawImageAtOrigin(int targetX, int targetY) throws Exception
+   private void shiftImageLeft(int offset)
    {
-      /*
-       * This function will draw the BarcodeImage's signal
-       * at a particular set of image coordinates (targetX, targetY).
-       */
-      //Find the origin point of the signal
-      int[] originCoordinates = findSpineOrigin();
-      
-      //We extract the signal into a boolean[][] representation
-      boolean[][] signalMap = getSignalOnly(originCoordinates);
-      
-      //change this.image only if a signal was found and extracted.
-      if(signalMap != null)
+      for (int row = 0; row < BarcodeImage.MAX_HEIGHT; row++)
       {
-         //we make sure the origin is valid
-         if(targetX+actualWidth > BarcodeImage.MAX_WIDTH || 
-               targetY-actualHeight < 0)
+         for (int col = offset; col < BarcodeImage.MAX_WIDTH; col++)
          {
-            throw new Exception("Invalid origin values!");
-         }
-         
-         clearImage();
-         
-         //input the signalMap
-         for(int y = signalMap.length-1; y >= 0; y--)
-         {
-            for(int x = 0; x < signalMap[y].length; x++)
-            {
-               image.setPixel(targetY-y, 
-                        targetX+x, signalMap[signalMap.length-1 - y][x]);
-            }
+            image.setPixel(row, col - offset, image.getPixel(row, col));
          }
       }
-      else
-      {
-         throw new Exception("There is no signal in this BarcodeImage!");
-      }
-
+      
    }
+   
    public void displayRawImage()
    {
       /*
