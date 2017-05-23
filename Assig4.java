@@ -9,13 +9,26 @@ CST 338
 M4: Optical Bar Code Readers Java Program
 23 May 2017
 
-PURPOSE:
+PURPOSE
+A group of classes to simulate an optical barcode reader.  These classes include:
+
+interface BarcodeIO
+An Interface that defines the I/O and basic methods of any barcode class which might implement it.
+
+class BarcodeImage implements Cloneable
+An object of this BarcodeImage class will be one of the main member-objects of the class that comes next.
+BarcodeImage will describe the 2D dot-matrix pattern, or "image".  It will contain some methods for storing,
+modifying and retrieving the data in a 2D image.
+
+class DataMatrix implements BarcodeIO
+The class that will contain both a BarcodeImage member object and a text String member that represents
+the message encoded in the embedded image.  This class has all the fun.  This is not a true Datamatrix because,
+for one thing, there is no Reed-Solomon error correction.
 
 ----------------------------------------------------------------------------------------------------------------- */
 
 public class Assig4
 {
-
    public static void main(String[] args) 
    {
       String[] sImageIn =
@@ -103,8 +116,12 @@ public class Assig4
       dm.displayTextToConsole();
       dm.displayImageToConsole();
    }
+}
 
 interface BarcodeIO
+/*
+ * An Interface that defines the I/O and basic methods of any barcode class which might implement it.
+ */
 {
    public boolean scan(BarcodeImage bc);
    public boolean readText(String text);
@@ -114,7 +131,12 @@ interface BarcodeIO
    public void displayImageToConsole();
 }
 
-static class BarcodeImage implements Cloneable
+class BarcodeImage implements Cloneable
+/*
+ * An object of this BarcodeImage class will be one of the main member-objects of the class that comes next.
+ * BarcodeImage will describe the 2D dot-matrix pattern, or "image".  It will contain some methods for storing,
+ * modifying and retrieving the data in a 2D image.
+ */
 {
    //The exact internal dimensions of 2D data.
    public static final int MAX_HEIGHT = 30;
@@ -129,9 +151,7 @@ static class BarcodeImage implements Cloneable
    */
    private boolean[][] image_data;
    
-   /*
-   Constructors.  Two minimum, but you could have others:
-    */
+   // Default constructor
    public BarcodeImage()
    {
       image_data = new boolean[MAX_HEIGHT][MAX_WIDTH];
@@ -144,6 +164,7 @@ static class BarcodeImage implements Cloneable
       }
    }
 
+   // Parameterized constructor
    public BarcodeImage(String[] str_data)
    {
       image_data = new boolean[MAX_HEIGHT][MAX_WIDTH];
@@ -166,7 +187,7 @@ static class BarcodeImage implements Cloneable
             }
          }
       }
-      //displayToConsole();
+      //displayToConsole(); //For debugging purposes
    }
 
    // Returns false if String array is null, or exceeds MAX_HEIGHT or MAX_WIDTH
@@ -274,7 +295,7 @@ static class BarcodeImage implements Cloneable
    }
 }
 
-static class DataMatrix implements BarcodeIO
+class DataMatrix implements BarcodeIO
 {
    public static final char BLACK_CHAR = '*';
    public static final char WHITE_CHAR = ' ';
@@ -304,10 +325,7 @@ static class DataMatrix implements BarcodeIO
     */
    private int actualWidth, actualHeight; 
    
-   /*
-   Constructors.  Three minimum, but you could have more:
-    */
-   
+   // Default constructor
    public DataMatrix()
    {
       /*
@@ -324,6 +342,7 @@ static class DataMatrix implements BarcodeIO
       this.actualHeight = 0;
    }
    
+   // Parameterized constructor
    public DataMatrix(BarcodeImage image)
    {
       /*
@@ -336,6 +355,7 @@ static class DataMatrix implements BarcodeIO
       this.text = "";
    }
    
+   // Parameterized constructor
    public DataMatrix(String text)
    {
       /*
@@ -348,12 +368,13 @@ static class DataMatrix implements BarcodeIO
          this.text = "";
    }
    
-   //Accessors for actualWidth and actualHeight but no mutators! (why?)
+   //Accessor for actualWidth
    public int getActualWidth()
    {
       return this.actualWidth;
    }
    
+   //Accessor for actualHeight
    public int getActualHeight()
    {
       return this.actualHeight;
@@ -424,16 +445,6 @@ static class DataMatrix implements BarcodeIO
       a mutator for text.  Like the constructor;  in
       fact it is called by the constructor.
        */
-      /*
-       if(this.equals(text))
-       {
-          return true;
-       }  
-       this.text.equals("");
-       {
-          return false;
-       }
-       */
       if (text == null)
       {
          return false;
@@ -443,7 +454,6 @@ static class DataMatrix implements BarcodeIO
          this.text = text;
          return true;
       }
-      
    }
 
    public boolean generateImageFromText()
@@ -480,7 +490,6 @@ static class DataMatrix implements BarcodeIO
       for (int i = 0; i < text.length() + 2; i++)
       {
          image.setPixel(BarcodeImage.MAX_HEIGHT - 1, i, true);
-
       }
       //create top border
       for (int i = 0; i < text.length() + 2; i++)
@@ -489,7 +498,6 @@ static class DataMatrix implements BarcodeIO
          {
             image.setPixel(BarcodeImage.MAX_HEIGHT - 10, i, true);
          }
-
       }
       //create left border
       writeCharToCol(0, 255);
@@ -628,7 +636,6 @@ static class DataMatrix implements BarcodeIO
          i++;
          location--;
       }
-
       return false;   
    }
 
@@ -766,7 +773,6 @@ static class DataMatrix implements BarcodeIO
       }
       return signalHeight;
    }
-
    
    private void cleanImage()
    {
@@ -800,8 +806,7 @@ static class DataMatrix implements BarcodeIO
          {
             image.setPixel(row, col - offset, image.getPixel(row, col));
          }
-      }
-      
+      }  
    }
    
    public void displayRawImage()
@@ -859,5 +864,4 @@ static class DataMatrix implements BarcodeIO
          }
       }
    }
-}
 }
