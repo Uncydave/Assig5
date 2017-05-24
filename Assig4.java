@@ -233,7 +233,6 @@ class BarcodeImage implements Cloneable
          }
       }
       return clone;
-
    }
    private void displayToConsole()
    {
@@ -243,7 +242,7 @@ class BarcodeImage implements Cloneable
       useful for the assignment at large.
        */
       //System.out.println(image_data);
-      for(int x = 0; x < MAX_WIDTH+2; x++)
+      for(int x = 0; x < MAX_WIDTH + 2; x++)
       {
          System.out.print("-");
       }
@@ -260,12 +259,11 @@ class BarcodeImage implements Cloneable
             else
             {
                System.out.print(" ");
-            }
-            
+            }     
          }
          System.out.println("|");
       }
-      for(int x = 0; x < MAX_WIDTH+2; x++)
+      for(int x = 0; x < MAX_WIDTH + 2; x++)
       {
          System.out.print("-");
       }
@@ -406,7 +404,6 @@ class DataMatrix implements BarcodeIO
       {
          return false;
       }
-      
       //cleans and sets image to bottom left corner
       cleanImage();
       
@@ -498,7 +495,6 @@ class DataMatrix implements BarcodeIO
       {
          writeCharToCol(i + 1, (int) text.charAt(i));
       }
-     
       actualWidth = computeSignalWidth();
       actualHeight = computeSignalHeight();
      
@@ -537,12 +533,11 @@ class DataMatrix implements BarcodeIO
          return false;
       }
       
-      for(int i = 1; i < actualWidth-1; i++)
+      for(int i = 1; i < actualWidth - 1; i++)
       {
          //compute and collect the characters from each column
          message += readCharFromCol(i);
       }
-      
       //set the text value.
       this.text = message;
       
@@ -605,7 +600,6 @@ class DataMatrix implements BarcodeIO
          //by 2^n_row. Complicated because n_row is going down in value while i is going up.
          characterValue += ((int)Math.pow(2, i - 1)) * extractedColumn[adjustedHeight - 1 - i];
       }
-
       return (char) characterValue;
    }
    
@@ -676,7 +670,7 @@ class DataMatrix implements BarcodeIO
          }
          
          System.out.println();
-         for(int x = 0; x < actualWidth+2; x++)
+         for(int x = 0; x < actualWidth + 2; x++)
          {
             System.out.print("-");
          }
@@ -686,7 +680,7 @@ class DataMatrix implements BarcodeIO
             System.out.print("|");
             for(int x = 0; x < actualWidth; x++)
             {
-               if(image.getPixel(origin[1]-actualHeight+y+1, x+origin[0]))
+               if(image.getPixel(origin[1] - actualHeight + y + 1, x + origin[0]))
                {
                   System.out.print(BLACK_CHAR);
                }
@@ -697,7 +691,7 @@ class DataMatrix implements BarcodeIO
             }
             System.out.println("|");
          }
-         for(int x = 0; x < actualWidth+2; x++)
+         for(int x = 0; x < actualWidth + 2; x++)
          {
             System.out.print("-");
          }
@@ -718,7 +712,7 @@ class DataMatrix implements BarcodeIO
       originX = originY = -1;
       
       //looking for image 'spine' so we start at bottom left
-      for(int y = BarcodeImage.MAX_HEIGHT-1; y >= 0 && !hasFoundSomething; y--)
+      for(int y = BarcodeImage.MAX_HEIGHT - 1; y >= 0 && !hasFoundSomething; y--)
       {
          for(int x = 0; x < BarcodeImage.MAX_WIDTH && !hasFoundSomething; x++)
          {
@@ -820,7 +814,7 @@ class DataMatrix implements BarcodeIO
        */
       
       //add top line
-      for(int x = 0; x < BarcodeImage.MAX_WIDTH+2; x++)
+      for(int x = 0; x < BarcodeImage.MAX_WIDTH + 2; x++)
       {
          System.out.print("-");
       }
@@ -843,7 +837,7 @@ class DataMatrix implements BarcodeIO
          System.out.println("|");
       }
       //Add bottom line
-      for(int x = 0; x < BarcodeImage.MAX_WIDTH+2; x++)
+      for(int x = 0; x < BarcodeImage.MAX_WIDTH + 2; x++)
       {
          System.out.print("-");
       }
