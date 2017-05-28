@@ -62,6 +62,45 @@ class CardTable extends JFrame{
        * region per round of battle.  My client chose a joker for the two central cards, just so
        * we would have something to see in the playing region. 
        */
+	   Deck practiceDeck = new Deck();
+	   pnlComputerHand = new JPanel();
+	   Hand computerHand = new Hand();
+	   pnlHumanHand = new JPanel();
+	   Hand humanHand = new Hand();
+	   pnlPlayArea = new JPanel();
+	   Hand playArea = new Hand();
+	   if (numCardsPerHand > MAX_CARDS_PER_HAND)
+	   {
+		   numCardsPerHand = MAX_CARDS_PER_HAND;
+	   }
+	   for (int count = numCardsPerHand; count > 0; count--)
+	   {
+		   computerHand.takeCard(practiceDeck.dealCard());
+		   humanHand.takeCard(practiceDeck.dealCard());
+	   }
+	   playArea.takeCard(practiceDeck.dealCard());
+	   playArea.takeCard(practiceDeck.dealCard());
+	   
+	   JLabel[] computerCards = new JLabel[computerHand.getNumCards()];
+	   for (int count = 0; count < computerHand.getNumCards(); count++)
+	   {
+		   computerCards[count] = new JLabel(GUICard.getBackCardIcon());
+		   pnlComputerHand.add(computerCards[count]);
+	   }
+	   JLabel[] humanCards = new JLabel[humanHand.getNumCards()];
+	   for (int count = 0; count < humanHand.getNumCards(); count++)
+	   {
+		   humanCards[count] = new JLabel(GUICard.getIcon(humanHand.getCard(count)));
+		   pnlHumanHand.add(humanCards[count]);
+	   }
+	   JLabel[] playedCards = new JLabel[playArea.getNumCards()];
+	   for (int count = 0; count < playArea.getNumCards(); count++)
+	   {
+		   playedCards[count] = new JLabel(GUICard.getIcon(playArea.getCard(count)));
+		   pnlPlayArea.add(playedCards[count]);
+	   }
+	   
+	   
    }
 
    public int getNumCardsPerHand(){
@@ -467,6 +506,11 @@ class Hand
        * Accessor for numCards
        */
       return this.numCards;
+   }
+   
+   public Card getCard(int k)
+   {
+	   return myCards[k];
    }
 
    public Card inspectCard(int k)
