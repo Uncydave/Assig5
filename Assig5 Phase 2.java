@@ -19,24 +19,76 @@ public class Assig5
 
       // establish main frame in which program will run
       CardTable myCardTable = new CardTable("CardTable", NUM_CARDS_PER_HAND, NUM_PLAYERS);
+      //int test = myCardTable.getNumCardsPerHand();
       myCardTable.setSize(800, 600);
       myCardTable.setLocationRelativeTo(null);
       myCardTable.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+
+      
       // show everything to the user
       myCardTable.setVisible(true);
 
-      // CREATE LABELS ----------------------------------------------------
-      //code goes here ...
+      //make play deck and shuffle it
+      Deck practiceDeck = new Deck();
+      practiceDeck.shuffle();
+      
+      //create Hands for computer, player, and play area
+      Hand computerHand = new Hand();
+      Hand humanHand = new Hand();
+      Hand playArea = new Hand();
 
-      // ADD LABELS TO PANELS -----------------------------------------
-      //code goes here ...
-
+      for (int count = NUM_CARDS_PER_HAND; count > 0; count--)
+      {
+         computerHand.takeCard(practiceDeck.dealCard());
+         humanHand.takeCard(practiceDeck.dealCard());
+      }
+      
       // and two random cards in the play region (simulating a computer/hum ply)
-      //code goes here ...
+      playArea.takeCard(practiceDeck.dealCard());
+      playArea.takeCard(practiceDeck.dealCard());
 
-      // show everything to the user
+      
+      // CREATE LABELS ----------------------------------------------------
+      JLabel[] computerCards = new JLabel[computerHand.getNumCards()];
+      JLabel[] humanCards = new JLabel[humanHand.getNumCards()];
+      JLabel[] playedCards = new JLabel[playArea.getNumCards()];
+      
+      // ADD LABELS TO PANELS -----------------------------------------
+      for (int count = 0; count < computerHand.getNumCards(); count++)
+      {
+	 //fill computer hand with card backs
+         computerCards[count] = new JLabel(GUICard.getBackCardIcon());
+         myCardTable.pnlComputerHand.add(computerCards[count]);
+      }
+      
+      for (int count = 0; count < humanHand.getNumCards(); count++)
+      {
+	 //fill human hand with cards in hand
+         humanCards[count] = new JLabel(GUICard.getIcon(humanHand.inspectCard(count)));
+         myCardTable.pnlHumanHand.add(humanCards[count]);
+      }
+      
+      //Arrange played cards in a grid with text labels underneath
+      myCardTable.pnlPlayArea.setLayout(new GridLayout(2,2));
+      
+      
+      for (int count = 0; count < playArea.getNumCards(); count++)
+      {
+	 //Fill play area with played cards
+         playedCards[count] = new JLabel(GUICard.getIcon(playArea.inspectCard(count)));
+         myCardTable.pnlPlayArea.add(playedCards[count]);
+      }
+      //Add text label for played cards
+      JLabel computerText = new JLabel("Computer",JLabel.CENTER);
+      myCardTable.pnlPlayArea.add(computerText);
+      
+      JLabel playerText = new JLabel("You",JLabel.CENTER);
+      myCardTable.pnlPlayArea.add(playerText);
+      
+      //show everything to the player
       myCardTable.setVisible(true);
+      
    }
 }
 
@@ -63,45 +115,22 @@ class CardTable extends JFrame
        * region per round of battle.  My client chose a joker for the two central cards, just so
        * we would have something to see in the playing region. 
        */
-      Deck practiceDeck = new Deck();
+
       pnlComputerHand = new JPanel();
-      Hand computerHand = new Hand();
-      pnlHumanHand = new JPanel();
-      Hand humanHand = new Hand();
-      pnlPlayArea = new JPanel();
-      Hand playArea = new Hand();
-      if (numCardsPerHand > MAX_CARDS_PER_HAND)
-      {
-         numCardsPerHand = MAX_CARDS_PER_HAND;
-      }
-      for (int count = numCardsPerHand; count > 0; count--)
-      {
-         computerHand.takeCard(practiceDeck.dealCard());
-         humanHand.takeCard(practiceDeck.dealCard());
-      }
-      playArea.takeCard(practiceDeck.dealCard());
-      playArea.takeCard(practiceDeck.dealCard());
+      pnlComputerHand.setBorder(BorderFactory.createTitledBorder("Computer Hand"));
       
-      JLabel[] computerCards = new JLabel[computerHand.getNumCards()];
-      for (int count = 0; count < computerHand.getNumCards(); count++)
-      {
-         computerCards[count] = new JLabel(GUICard.getBackCardIcon());
-         pnlComputerHand.add(computerCards[count]);
-      }
-      JLabel[] humanCards = new JLabel[humanHand.getNumCards()];
-      for (int count = 0; count < humanHand.getNumCards(); count++)
-      {
-         //humanCards[count] = new JLabel(GUICard.getIcon(humanHand.getCard(count)));
-         pnlHumanHand.add(humanCards[count]);
-      }
-      JLabel[] playedCards = new JLabel[playArea.getNumCards()];
-      for (int count = 0; count < playArea.getNumCards(); count++)
-      {
-         //playedCards[count] = new JLabel(GUICard.getIcon(playArea.getCard(count)));
-         pnlPlayArea.add(playedCards[count]);
-      }
+      pnlHumanHand = new JPanel();
+      pnlHumanHand.setBorder(BorderFactory.createTitledBorder("Your Hand"));
+      
+      pnlPlayArea = new JPanel();
+      pnlPlayArea.setBorder(BorderFactory.createTitledBorder("Play Area"));
+      
+      add(pnlComputerHand,BorderLayout.NORTH);
+      add(pnlHumanHand,BorderLayout.SOUTH);
+      add(pnlPlayArea,BorderLayout.CENTER);
    }
 
+   
    public int getNumCardsPerHand()
    {
       /*
