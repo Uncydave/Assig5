@@ -23,8 +23,6 @@ public class Assig5
       myCardTable.setSize(800, 600);
       myCardTable.setLocationRelativeTo(null);
       myCardTable.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-
       
       // show everything to the user
       myCardTable.setVisible(true);
@@ -57,14 +55,14 @@ public class Assig5
       // ADD LABELS TO PANELS -----------------------------------------
       for (int count = 0; count < computerHand.getNumCards(); count++)
       {
-	 //fill computer hand with card backs
+         //fill computer hand with card backs
          computerCards[count] = new JLabel(GUICard.getBackCardIcon());
          myCardTable.pnlComputerHand.add(computerCards[count]);
       }
       
       for (int count = 0; count < humanHand.getNumCards(); count++)
       {
-	 //fill human hand with cards in hand
+         //fill human hand with cards in hand
          humanCards[count] = new JLabel(GUICard.getIcon(humanHand.inspectCard(count)));
          myCardTable.pnlHumanHand.add(humanCards[count]);
       }
@@ -72,13 +70,13 @@ public class Assig5
       //Arrange played cards in a grid with text labels underneath
       myCardTable.pnlPlayArea.setLayout(new GridLayout(2,2));
       
-      
       for (int count = 0; count < playArea.getNumCards(); count++)
       {
-	 //Fill play area with played cards
+         //Fill play area with played cards
          playedCards[count] = new JLabel(GUICard.getIcon(playArea.inspectCard(count)));
          myCardTable.pnlPlayArea.add(playedCards[count]);
       }
+      
       //Add text label for played cards
       JLabel computerText = new JLabel("Computer",JLabel.CENTER);
       myCardTable.pnlPlayArea.add(computerText);
@@ -88,7 +86,6 @@ public class Assig5
       
       //show everything to the player
       myCardTable.setVisible(true);
-      
    }
 }
 
@@ -129,7 +126,6 @@ class CardTable extends JFrame
       add(pnlHumanHand,BorderLayout.SOUTH);
       add(pnlPlayArea,BorderLayout.CENTER);
    }
-
    
    public int getNumCardsPerHand()
    {
@@ -153,7 +149,7 @@ class GUICard
    private static Icon[][] iconCards = new ImageIcon[14][4]; // 14 = A thru K + joker
    private static Icon iconBack;
    static boolean iconsLoaded = false;
-   
+
    // loads all of the card images into a 2D array one time only
    static void loadCardIcons()
    {
@@ -177,7 +173,7 @@ class GUICard
       loadCardIcons();  // only instantiates one time
       return iconCards[valueAsInt(card)][suitAsInt(card)];
    }
-   
+
    // accessor for back of card image
    static public Icon getBackCardIcon()
    {
@@ -191,34 +187,34 @@ class GUICard
       char cardsValue = card.getValue(); 
       switch (cardsValue)
       {
-      case 'A':
-         return 0;
-      case '2':
-         return 1;
-      case '3':
-         return 2;
-      case '4':
-         return 3;
-      case '5':
-         return 4;
-      case '6':
-         return 5;
-      case '7':
-         return 6;
-      case '8':
-         return 7;
-      case '9':
-         return 8;
-      case 'T':
-         return 9;
-      case 'J':
-         return 10;
-      case 'Q':
-         return 11;
-      case 'K':
-         return 12;
-      case 'X':
-         return 13;
+         case 'A':
+            return 0;
+         case '2':
+            return 1;
+         case '3':
+            return 2;
+         case '4':
+            return 3;
+         case '5':
+            return 4;
+         case '6':
+            return 5;
+         case '7':
+            return 6;
+         case '8':
+            return 7;
+         case '9':
+            return 8;
+         case 'T':
+            return 9;
+         case 'J':
+            return 10;
+         case 'Q':
+            return 11;
+         case 'K':
+            return 12;
+         case 'X':
+            return 13;
       }
       return 0;
    }
@@ -229,51 +225,51 @@ class GUICard
       Card.Suit cardsSuit = card.getSuit();
       switch (cardsSuit)
       {
-      case clubs:
-         return 0;
-      case diamonds:
-         return 1;
-      case hearts:
-         return 2;
-      case spades:
-         return 3;
+         case clubs:
+            return 0;
+         case diamonds:
+            return 1;
+         case hearts:
+            return 2;
+         case spades:
+            return 3;
       }
       return 3;
    }
-   
+
    // turns 0 - 13 into "A", "2", "3", ... "Q", "K", "X"
    static String turnIntIntoCardValue(int k)
    {
       switch (k)
       {
-      case 0:
-         return "A";
-      case 1:
-         return "2";
-      case 2:
-         return "3";
-      case 3:
-         return "4";
-      case 4:
-         return "5";
-      case 5:
-         return "6";
-      case 6:
-         return "7";
-      case 7:
-         return "8";
-      case 8:
-         return "9";
-      case 9:
-         return "T";
-      case 10:
-         return "J";
-      case 11:
-         return "Q";
-      case 12:
-         return "K";
-      case 13:
-         return "X";
+         case 0:
+            return "A";
+         case 1:
+            return "2";
+         case 2:
+            return "3";
+         case 3:
+            return "4";
+         case 4:
+            return "5";
+         case 5:
+            return "6";
+         case 6:
+            return "7";
+         case 7:
+            return "8";
+         case 8:
+            return "9";
+         case 9:
+            return "T";
+         case 10:
+            return "J";
+         case 11:
+            return "Q";
+         case 12:
+            return "K";
+         case 13:
+            return "X";
       }
       return "A";
    }
@@ -283,14 +279,14 @@ class GUICard
    {
       switch (j)
       {
-      case 0:
-         return "C";
-      case 1:
-         return "D";
-      case 2:
-         return "H";
-      case 3:
-         return "S";
+         case 0:
+            return "C";
+         case 1:
+            return "D";
+         case 2:
+            return "H";
+         case 3:
+            return "S";
       }
       return "S";
    }
@@ -430,34 +426,33 @@ class Card
    
    // Find the card index
    private static int cardIndex(Card card)
+   {
+      for(int i = 0; i < valuRanks.length; i++)
       {
-
-         for(int i = 0; i < valuRanks.length; i++)
-         {
-            if(card.getValue() == valuRanks[i])
-               return i;
-         }
-
-         return -1;
+         if(card.getValue() == valuRanks[i])
+            return i;
       }
+      return -1;
+   }
 
    // Use the bubble sort for sorting the array
    public static void arraySort(Card[] cardArray, int arraySize)
+   {
+      Card temp;
+
+      for(int i = 0; i < arraySize; i++)
       {
-         Card temp;
-
-         for(int i = 0; i < arraySize; i++){
-            for(int j = 1; j < arraySize - i; j++){
-               if(cardIndex(cardArray[j-1]) > cardIndex(cardArray[j])){
-                  temp = cardArray[j-1];
-                   cardArray[j-1] = cardArray[j];
-                   cardArray[j] = temp;
-               }
-           }
-
+         for(int j = 1; j < arraySize - i; j++)
+         {
+            if(cardIndex(cardArray[j-1]) > cardIndex(cardArray[j]))
+            {
+               temp = cardArray[j-1];
+               cardArray[j-1] = cardArray[j];
+               cardArray[j] = temp;
+            }
          }
-
       }
+   }
 }
 
 class Hand
@@ -805,10 +800,7 @@ class Deck
       }
       cards[topCard].set(card.getValue(), card.getSuit());
       topCard++;
-      
-      {
       return true;
-      }
    }
    
    // boolean removeCard(Card card) 
@@ -825,10 +817,7 @@ class Deck
             
          }
       }
-      
-      {
          return false;
-      }
    }
 
    public void sort()
