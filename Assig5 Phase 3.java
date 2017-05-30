@@ -80,7 +80,7 @@ public class Assig5
       JLabel humanLabel;
       if(humanCard == null)
       {
-         humanLabel = new JLabel(GUICard.getBackCardIcon());
+         humanLabel = new JLabel();
       }
       else
       {
@@ -90,7 +90,7 @@ public class Assig5
       JLabel computerLabel;
       if(computerCard == null)
       {
-         computerLabel = new JLabel(GUICard.getBackCardIcon());
+         computerLabel = new JLabel();
       }
       else
       {
