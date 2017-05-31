@@ -1,12 +1,31 @@
+/* ---------------------------------------------------------------------------------------------------------------- 
+Nautilus Group
+Caleb Allen
+Daisy Mayorga
+David Harrison
+Dustin Whittington
+Michael Cline
+CST 338
+M5: GUI Card Java Program
+30 May 2017
+
+PURPOSE
+Over several phases, we will be using the classes we wrote from M3 (Card, Hand, and Deck) and adding to those classes
+the a GUI framework.  To do this we will use some additional classes and create some of our own.
+
+This is the second phase out of three.  This second phase will let you turn what you did in the first phase into a 
+multi-class project.  We will encapsulate the Card Icons in a class GUICard - Once we debug imagery for cards, 
+we can move it into its own class, GUICard.  Next, we will create a CardTable class - This JFrame class will embody
+the JPanels and Layout(s) needed for our application. This is where all the cards and controls will be placed.
+----------------------------------------------------------------------------------------------------------------- */
 import java.awt.*;
 import javax.swing.*;
-import javax.swing.border.*;
 import java.util.Random;
 
 public class Assig5
 {
-   static int NUM_CARDS_PER_HAND = 7;
-   static int  NUM_PLAYERS = 2;
+   static final int NUM_CARDS_PER_HAND = 7;
+   static final int  NUM_PLAYERS = 2;
    static JLabel[] computerLabels = new JLabel[NUM_CARDS_PER_HAND];
    static JLabel[] humanLabels = new JLabel[NUM_CARDS_PER_HAND];  
    static JLabel[] playedCardLabels  = new JLabel[NUM_PLAYERS]; 
@@ -14,12 +33,8 @@ public class Assig5
 
    public static void main(String[] args)
    {
-      int k;
-      Icon tempIcon;
-
       // establish main frame in which program will run
       CardTable myCardTable = new CardTable("CardTable", NUM_CARDS_PER_HAND, NUM_PLAYERS);
-      //int test = myCardTable.getNumCardsPerHand();
       myCardTable.setSize(800, 600);
       myCardTable.setLocationRelativeTo(null);
       myCardTable.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -45,7 +60,6 @@ public class Assig5
       // and two random cards in the play region (simulating a computer/hum ply)
       playArea.takeCard(practiceDeck.dealCard());
       playArea.takeCard(practiceDeck.dealCard());
-
       
       // CREATE LABELS ----------------------------------------------------
       JLabel[] computerCards = new JLabel[computerHand.getNumCards()];
@@ -80,7 +94,6 @@ public class Assig5
       //Add text label for played cards
       JLabel computerText = new JLabel("Computer",JLabel.CENTER);
       myCardTable.pnlPlayArea.add(computerText);
-      
       JLabel playerText = new JLabel("You",JLabel.CENTER);
       myCardTable.pnlPlayArea.add(playerText);
       
@@ -91,12 +104,13 @@ public class Assig5
 
 class CardTable extends JFrame
 {
-   static int MAX_CARDS_PER_HAND = 56;
-   static int MAX_PLAYERS = 2;
+   static final int MAX_CARDS_PER_HAND = 56;
+   static final int MAX_PLAYERS = 2;
 
    private int numCardsPerHand;
    private int numPlayers;
 
+   // JPanels for computer's hand, player's hand, and the play area
    public JPanel pnlComputerHand, pnlHumanHand, pnlPlayArea;
 
    public CardTable(String title, int numCardsPerHand, int numPlayers)
@@ -113,15 +127,19 @@ class CardTable extends JFrame
        * we would have something to see in the playing region. 
        */
 
+      // computer's hand
       pnlComputerHand = new JPanel();
       pnlComputerHand.setBorder(BorderFactory.createTitledBorder("Computer Hand"));
       
+      // player's hand
       pnlHumanHand = new JPanel();
       pnlHumanHand.setBorder(BorderFactory.createTitledBorder("Your Hand"));
       
+      // play area
       pnlPlayArea = new JPanel();
       pnlPlayArea.setBorder(BorderFactory.createTitledBorder("Play Area"));
       
+      // layout for JPanels
       add(pnlComputerHand,BorderLayout.NORTH);
       add(pnlHumanHand,BorderLayout.SOUTH);
       add(pnlPlayArea,BorderLayout.CENTER);
@@ -162,8 +180,8 @@ class GUICard
                iconCards[k][j] = new ImageIcon("images/" + turnIntIntoCardValue(k) + turnIntIntoCardSuit(j) + ".gif");
             }        
          }
-         iconBack = new ImageIcon("images/BK.gif");
-         iconsLoaded = true;
+         iconBack = new ImageIcon("images/BK.gif");  //loads the back of card image
+         iconsLoaded = true;  //this keeps array from loading more than once
       }
    }
 
@@ -814,10 +832,9 @@ class Deck
             cards[topCard] = null;
             topCard--;
             return true;
-            
          }
       }
-         return false;
+      return false;
    }
 
    public void sort()
