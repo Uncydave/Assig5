@@ -1,15 +1,33 @@
+/* ---------------------------------------------------------------------------------------------------------------- 
+Nautilus Group
+Caleb Allen
+Daisy Mayorga
+David Harrison
+Dustin Whittington
+Michael Cline
+CST 338
+M5: GUI Card Java Program
+30 May 2017
+
+PURPOSE
+Over several phases, we will be using the classes we wrote from M3 (Card, Hand, and Deck) and adding to those classes
+the a GUI framework.  To do this we will use some additional classes and create some of our own.
+
+This is the third phase out of three.  This third and final phase The final phase will add the CardGameFramework
+class so that your card tools can be combined with your GUI tools to create a GUI program that has real computational
+power for a GUI card game, "High Card".
+----------------------------------------------------------------------------------------------------------------- */
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.util.Date;
 import javax.swing.*;
-import javax.swing.border.*;
 import java.util.Random;
 
 public class Assig5
 {
-   static int NUM_CARDS_PER_HAND = 7;
-   static int  NUM_PLAYERS = 2;
+   static final int NUM_CARDS_PER_HAND = 7;
+   static final int  NUM_PLAYERS = 2;
    static JLabel[] computerLabels = new JLabel[NUM_CARDS_PER_HAND];
    static JLabel[] humanLabels = new JLabel[NUM_CARDS_PER_HAND];  
    static JLabel[] playedCardLabels  = new JLabel[NUM_PLAYERS]; 
@@ -80,23 +98,25 @@ public class Assig5
       JLabel humanLabel;
       if(humanCard == null)
       {
-         humanLabel = new JLabel();
+         humanLabel = new JLabel(); //leaves play area blank until a card is played
       }
       else
       {
          humanLabel = new JLabel(GUICard.getIcon(humanCard));
       }
 
+      //Add label for each played card.
       JLabel computerLabel;
       if(computerCard == null)
       {
-         computerLabel = new JLabel();
+         computerLabel = new JLabel();  //leaves play area blank until a card is played
       }
       else
       {
          computerLabel = new JLabel(GUICard.getIcon(computerCard));
       }
 
+      //Prepare the table
       table.pnlPlayArea.add(computerLabel);
       table.pnlPlayArea.add(humanLabel);
 
@@ -104,6 +124,7 @@ public class Assig5
       JLabel computerText = new JLabel("Computer",JLabel.CENTER);
       table.pnlPlayArea.add(computerText);
 
+      //Add text label for played cards
       JLabel playerText = new JLabel("You",JLabel.CENTER);
       table.pnlPlayArea.add(playerText);
    }
@@ -226,9 +247,9 @@ public class Assig5
       boolean isComputerFinished = true;
 
       //Variables to track winnings.
-      Card[] playerWinnings = new Card[numPacksPerDeck*52];
+      Card[] playerWinnings = new Card[numPacksPerDeck*56];
       int playerWinningsCount = 0;
-      Card[] computerWinnings = new Card[numPacksPerDeck*52];
+      Card[] computerWinnings = new Card[numPacksPerDeck*56];
       int computerWinningsCount = 0;
 
       //Create highCardGame handler
@@ -251,6 +272,7 @@ public class Assig5
       fillHandPanels(highCardGame.getHand(humanHandID),humanLabels,myCardTable,false);
       fillPlayAreaPanels(null,null,myCardTable);
 
+      //Make everything visible
       myCardTable.setVisible(true);
 
       //Timer to allow for game to timeout if ignored.
@@ -311,7 +333,7 @@ public class Assig5
             myCardTable.pnlPlayArea.add(playerText);
             myCardTable.setVisible(true);
 
-            //Give player 1 seconds to read message.
+            //Give player 1 second to read message.
             try
             {
                Thread.sleep(1000);
@@ -337,7 +359,7 @@ public class Assig5
             myCardTable.pnlPlayArea.add(playerText);
             myCardTable.setVisible(true);
 
-            //Give player 1 seconds to read message.
+            //Give player 1 second to read message.
             try
             {
                Thread.sleep(1000);
@@ -362,6 +384,7 @@ public class Assig5
          fillHandPanels(highCardGame.getHand(humanHandID),humanLabels,myCardTable,false);
          fillPlayAreaPanels(null,null,myCardTable);
 
+         //Make everything visible
          myCardTable.setVisible(true);
 
          //Loop Housekeeping, reset timer and checked ID.
@@ -371,7 +394,6 @@ public class Assig5
    }
 
    //Game over. Display winnings
-
    //Clear card table to display winnings.
    myCardTable.pnlComputerHand.removeAll();
    myCardTable.pnlPlayArea.removeAll();
@@ -450,8 +472,8 @@ class cardPlayListener implements ActionListener
 
 class CardTable extends JFrame
 {
-   static int MAX_CARDS_PER_HAND = 56;
-   static int MAX_PLAYERS = 2;
+   static final int MAX_CARDS_PER_HAND = 56;
+   static final int MAX_PLAYERS = 2;
 
    private int numCardsPerHand;
    private int numPlayers;
@@ -472,15 +494,19 @@ class CardTable extends JFrame
        * we would have something to see in the playing region. 
        */
 
+      // computer's hand
       pnlComputerHand = new JPanel();
       pnlComputerHand.setBorder(BorderFactory.createTitledBorder("Computer Hand"));
 
+      // player's hand
       pnlHumanHand = new JPanel();
       pnlHumanHand.setBorder(BorderFactory.createTitledBorder("Your Hand"));
 
+      // play area
       pnlPlayArea = new JPanel();
       pnlPlayArea.setBorder(BorderFactory.createTitledBorder("Play Area"));
 
+      // layout for JPanels
       add(pnlComputerHand,BorderLayout.NORTH);
       add(pnlHumanHand,BorderLayout.SOUTH);
       add(pnlPlayArea,BorderLayout.CENTER);
@@ -521,8 +547,8 @@ class GUICard
                iconCards[k][j] = new ImageIcon("images/" + turnIntIntoCardValue(k) + turnIntIntoCardSuit(j) + ".gif");
             }        
          }
-         iconBack = new ImageIcon("images/BK.gif");
-         iconsLoaded = true;
+         iconBack = new ImageIcon("images/BK.gif");  //loads the back of card image
+         iconsLoaded = true;  //this keeps array from loading more than once
       }
    }
 
@@ -908,7 +934,7 @@ class Hand
          Card playedCard = new Card(myCards[cardIndex].getValue(), myCards[cardIndex].getSuit());
 
          //Temporary container for cards in hand.
-         Card[] tempCards = new Card[numCards-1];
+         Card[] tempCards = new Card[numCards - 1];
 
          //Add cards up until index to temporary array
          for(int i = 0; i < cardIndex; i++)
@@ -917,9 +943,9 @@ class Hand
          }
 
          //Add cards after index to temporary array
-         for(int i = cardIndex+1; i < numCards; i++)
+         for(int i = cardIndex + 1; i < numCards; i++)
          {
-            tempCards[i-1] = myCards[i];
+            tempCards[i - 1] = myCards[i];
          }
 
          //Reset the player's hand
