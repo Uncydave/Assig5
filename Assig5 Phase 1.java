@@ -1,3 +1,22 @@
+/* ---------------------------------------------------------------------------------------------------------------- 
+Nautilus Group
+Caleb Allen
+Daisy Mayorga
+David Harrison
+Dustin Whittington
+Michael Cline
+CST 338
+M5: GUI Card Java Program
+30 May 2017
+
+PURPOSE
+Over several phases, we will be using the classes we wrote from M3 (Card, Hand, and Deck) and adding to those classes
+the a GUI framework.  To do this we will use some additional classes and create some of our own.
+
+This is the first phase out of three.  This first phase will allow us to debug the problem of reading the .gif files
+and displaying them on a JFrame without any excess logic or class complexity.  These .gif files represent the front
+card images and the back card image.
+----------------------------------------------------------------------------------------------------------------- */
 import javax.swing.*;
 import java.awt.*;
 
@@ -7,8 +26,7 @@ public class Assig5
    // normally we would not have a separate label for each card, but
    // if we want to display all at once using labels, we need to.
 
-   static final int NUM_CARD_IMAGES = 57; // 52 + 4 jokers + 1 back-of-card
-                                          // image
+   static final int NUM_CARD_IMAGES = 57; // 52 + 4 jokers + 1 back-of-card image
    static Icon[] icon = new ImageIcon[NUM_CARD_IMAGES];
 
    static void loadCardIcons()
